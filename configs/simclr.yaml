@@ -1,0 +1,66 @@
+# ============================================================
+# Config: SimCLR Pretraining
+# ============================================================
+#
+# CHỌN PROFILE PHÙ HỢP VỚI GPU:
+#
+#  GPU                VRAM   batch_size  num_workers  patch
+#  ──────────────────────────────────────────────────────────
+#  T4  (Kaggle/Colab) 16 GB      16           4        64³
+#  L4  (GCP/Vast.ai)  24 GB      32           8        64³
+#  RTX 4090 / 3090    24 GB      32           8        64³
+#  A100  40 GB        40 GB      64           8        64³
+#  A100  80 GB        80 GB      96           8        96³
+#  RTX 3080           10 GB       8           4        64³
+#
+# Quy tắc num_workers:
+#   = số CPU vCores ÷ 2  (cloud VM thường có 8–32 vCores)
+#   Vast.ai/RunPod: kiểm tra bằng  `nproc`
+# ============================================================
+
+# ── Data paths (setup_data.py sẽ giải nén vào đây) ──
+data:
+  train_dir: "data/BraTS2020_TrainingData/MICCAI_BraTS2020_TrainingData"
+  val_dir:   "data/BraTS2020_ValidationData/MICCAI_BraTS2020_ValidationData"
+  modality:  "t1ce"
+
+# ── Output ──
+output:
+  dir:           "outputs/simclr"
+  checkpoint:    "outputs/simclr/latest_checkpoint.pth"
+  best_encoder:  "outputs/simclr/best_encoder.pth"
+  final_encoder: "outputs/simclr/final_encoder.pth"
+
+# ── Dataset ──
+dataset:
+  patch_size:         [64, 64, 64]
+  patches_per_volume: 8
+
+# ── Training ── ★ CHỈNH batch_size VÀ num_workers THEO GPU ──
+train:
+  batch_size:  32    # T4=16 | L4/4090/3090=32 | A100-40G=64 | A100-80G=96
+  num_epochs:  100
+  num_workers: 8     # = nproc ÷ 2  (Vast.ai thường có 8–16 vCores)
+  seed:        42
+  grad_accum:  1     # Tăng lên 2 nếu OOM nhưng muốn batch lớn hơn
+
+# ── Optimizer ──
+optimizer:
+  lr:           3.0e-4
+  weight_decay: 1.0e-4
+
+# ── LR Scheduler ──
+scheduler:
+  eta_min: 1.0e-6
+
+# ── SimCLR ──
+simclr:
+  temperature:    0.07
+  projection_dim: 128
+
+# ── GPU Augmentation ──
+augmentation:
+  p_flip:   0.5
+  p_noise:  0.5
+  p_crop:   0.5
+  p_cutout: 0.4

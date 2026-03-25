@@ -1,0 +1,65 @@
+# ============================================================
+# Config: UNet + SimCLR Pretrained Encoder
+# ============================================================
+#
+# BATCH SIZE theo GPU (patch 128³, 1 channel):
+#
+#  GPU                VRAM   batch_size  num_workers
+#  ─────────────────────────────────────────────────
+#  T4  (Kaggle/Colab) 16 GB       2           4
+#  L4  (GCP/Vast.ai)  24 GB       4           8
+#  RTX 4090 / 3090    24 GB       4           8
+#  A100  40 GB        40 GB       8           8
+#  A100  80 GB        80 GB      16          16
+#  RTX 3080           10 GB       1           4   ← dùng grad_accum=4
+#
+# Lưu ý: UNet 128³ ngốn VRAM hơn SimCLR nhiều vì feature maps lớn hơn.
+# Nếu OOM: giảm batch_size xuống 1 và tăng grad_accum lên 4
+# ============================================================
+
+# ── Data ──
+data:
+  train_dir:  "data/BraTS2020_TrainingData/MICCAI_BraTS2020_TrainingData"
+  modality:   "t1ce"
+  seg_suffix: "seg"
+
+# ── Pretrained encoder từ train_simclr.py ──
+pretrain:
+  encoder_path: "outputs/simclr/best_encoder.pth"
+
+# ── Output ──
+output:
+  dir:        "outputs/unet_pretrained"
+  checkpoint: "outputs/unet_pretrained/latest_checkpoint.pth"
+  best_model: "outputs/unet_pretrained/best_model.pth"
+
+# ── Dataset ──
+dataset:
+  patch_size:         [128, 128, 128]
+  patches_per_volume: 8
+  val_split:          0.2
+
+# ── Training ── ★ CHỈNH batch_size VÀ num_workers THEO GPU ──
+train:
+  batch_size:  4     # T4=2 | L4/4090/3090=4 | A100-40G=8 | A100-80G=16
+  num_epochs:  150
+  num_workers: 8     # = nproc ÷ 2
+  seed:        42    # ⚠ PHẢI giống unet_baseline.yaml → split giống nhau
+  grad_accum:  1     # Tăng lên 2–4 nếu OOM
+
+# ── Fine-tune strategy ──
+finetune:
+  freeze_encoder_epochs: 10    # Freeze encoder 10 epoch đầu → decoder ổn định trước
+  encoder_lr_scale:      0.05  # Encoder LR = lr × 0.05 sau khi unfreeze
+
+# ── Optimizer ──
+optimizer:
+  lr:           2.0e-4
+  weight_decay: 1.0e-4
+
+# ── GPU Augmentation ──
+augmentation:
+  p_flip:   0.5
+  p_noise:  0.5
+  p_crop:   0.5
+  p_cutout: 0.4
