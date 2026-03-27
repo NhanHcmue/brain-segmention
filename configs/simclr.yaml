@@ -38,9 +38,9 @@ dataset:
 
 # ── Training ── ★ CHỈNH batch_size VÀ num_workers THEO GPU ──
 train:
-  batch_size:  32    # T4=16 | L4/4090/3090=32 | A100-40G=64 | A100-80G=96
+  batch_size:  128    # T4=16 | L4/4090/3090=32 | A100-40G=64 | A100-80G=96
   num_epochs:  100
-  num_workers: 8     # = nproc ÷ 2  (Vast.ai thường có 8–16 vCores)
+  num_workers: 12     # = nproc ÷ 2  (Vast.ai thường có 8–16 vCores)
   seed:        42
   grad_accum:  1     # Tăng lên 2 nếu OOM nhưng muốn batch lớn hơn
 
