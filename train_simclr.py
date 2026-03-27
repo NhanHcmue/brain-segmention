@@ -28,7 +28,7 @@ def set_seed(s):
     torch.backends.cudnn.benchmark     = True   # auto-tune conv cho fixed input size
 
 def load_config(path):
-    with open(path) as f: return yaml.safe_load(f)
+    with open(path, encoding ="utf-8") as f: return yaml.safe_load(f)
 
 def log_system():
     print(f"PyTorch  : {torch.__version__}")
