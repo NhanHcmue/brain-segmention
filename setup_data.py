@@ -163,7 +163,7 @@ def update_configs(train_root: str, val_root: str = None):
         return
 
     for cfg_path in configs:
-        with open(cfg_path) as f:
+        with open(cfg_path, encoding ="utf-8") as f:
             content = f.read()
 
         # Thay train_dir
