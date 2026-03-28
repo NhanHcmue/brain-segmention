@@ -33,6 +33,8 @@ pip install -r requirements.txt
 
 ## Chạy training
 
+bash scripts/run_all.sh --gdrive_id 17zSUKeFJzTWh64OQz74ufzavdA0vl-Ps
+
 ### Bước 1 — Sửa đường dẫn data trong config
 
 Mở `configs/simclr.yaml`, sửa:
