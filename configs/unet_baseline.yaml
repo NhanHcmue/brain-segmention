@@ -1,18 +1,16 @@
 # ============================================================
 # Config: UNet Baseline — Random Initialization
-# ⚠ MỌI GIÁ TRỊ PHẢI GIỐNG unet_pretrained.yaml
-#   (trừ encoder_path=null và output dir)
+# ⚠ Mọi giá trị phải giống unet_pretrained.yaml (trừ encoder_path và output dir)
 # ============================================================
 
 # ── Data ──
 data:
-  train_dir:  "data/BraTS2020_TrainingData/MICCAI_BraTS2020_TrainingData"
-  modality:   "t1ce"
-  seg_suffix: "seg"
+  patch_dir: "data/BraTS2020_patches"   # cùng patches với pretrained
+  ram_cache: false
 
 # ── Không có pretrained encoder ──
 pretrain:
-  encoder_path: null   # ← random init
+  encoder_path: null
 
 # ── Output ──
 output:
@@ -20,26 +18,20 @@ output:
   checkpoint: "outputs/unet_baseline/latest_checkpoint.pth"
   best_model: "outputs/unet_baseline/best_model.pth"
 
-# ── Dataset ──
-dataset:
-  patch_size:         [128, 128, 128]
-  patches_per_volume: 8
-  val_split:          0.2
-
-# ── Training ── (GIỐNG pretrained) ──
+# ── Training (giống pretrained) ──
 train:
-  batch_size:  4     # T4=2 | L4/4090/3090=4 | A100-40G=8 | A100-80G=16
+  batch_size:  4
   num_epochs:  150
-  num_workers: 8
-  seed:        42    # ⚠ seed=42 giống pretrained → CÙNG train/val split
+  num_workers: 12
+  seed:        42     # ⚠ cùng seed → cùng train/val split
   grad_accum:  1
 
-# ── Optimizer (GIỐNG pretrained) ──
+# ── Optimizer (giống pretrained) ──
 optimizer:
   lr:           2.0e-4
   weight_decay: 1.0e-4
 
-# ── GPU Augmentation (GIỐNG pretrained) ──
+# ── GPU Augmentation (giống pretrained) ──
 augmentation:
   p_flip:   0.5
   p_noise:  0.5
