@@ -21,7 +21,7 @@ output:
 train:
   batch_size:  4      # T4=2 | L4/3090/4090=4 | A100-40G=8
   num_epochs:  150
-  num_workers: 8      # = nproc ÷ 2
+  num_workers: 12      # = nproc ÷ 2
   seed:        42
   grad_accum:  1
 
